@@ -1,0 +1,42 @@
+# --------------------- importing necessary module -----------------------------------
+# --------------------------- use for open &read image(in vector format) -------------
+from tkinter import X
+import cv2 
+import re
+# --------------------------- use for read the text of an image ----------------------
+import pytesseract 
+# import re
+# --------------------------- use for divide paragraph ,... to small sentences -------
+import nltk
+# --------------------------- use for translate the output of pytesseract ------------
+from googletrans import Translator
+# --------------------------- use for change the direction of teanslated text(persian)
+import arabic_reshaper
+from bidi.algorithm import get_display 
+# --------------------- define path for tesseract (error was solved by youtube)-------
+pytesseract.pytesseract.tesseract_cmd = r'C:\Users\mahdi\AppData\Local\Tesseract-OCR\tesseract.exe'
+# --------------------- start the main code ------------------------------------------
+# open and read input image
+img = cv2.imread('test0.jpg')
+# ------------------------- derive the text of opened image ---------------------------
+text_of_image = pytesseract.image_to_string(img)
+# print(text_of_image)
+# ------------------------- divide text into sentences and translate it --------------------------------
+# assign variable to method of googletranslate module (for better undrestand)----------------------------------
+p = Translator() 
+sentences=nltk.sent_tokenize(text_of_image)
+corpus=[]
+k=[]
+for i in range(len(sentences)):
+    # review=sentences[i].lower() # for delete uppercase letter
+    # review=re.sub('[^a-z]'," ",review) # for change arbitrary character to another arbitrary character
+    review = sentences[i].split( ) # split the sentences into word like ['Patent', 'and', 'Trademark'],[...] format
+    review = ' '.join(review) # join the word of each sentence together by one letter distance between them
+    x = p.translate(review, dest="persian").text  # translates the text into persian language
+    corpus.append(review) # complete the whole text
+    k.append(x) # complete the whole text
+print(corpus)
+replacements=[(",", ""),("'","")]
+for pat,repl in replacements:
+    corpus_str = re.sub(pat, repl, get_display(str(k)))
+print(corpus_str)
